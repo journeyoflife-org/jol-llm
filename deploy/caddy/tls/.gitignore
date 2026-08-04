@@ -1,8 +1,0 @@
-# Never commit private key material
-*.key
-*.crt
-*.pem
-*.p12
-*.crl
-ca.srl
-*.csr
