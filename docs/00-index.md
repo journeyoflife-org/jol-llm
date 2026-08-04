@@ -5,6 +5,12 @@ Living documentation for the JOL self-hosted LLM platform on
 older than 90 days must be re-validated before being relied upon in an
 incident.
 
+> **Repository split (2026-08-04)** — deployment assets (Ansible, systemd,
+> Caddy, host config, monitoring, scripts) moved to
+> [journeyoflife-org/jol-infrastructure](https://github.com/journeyoflife-org/jol-infrastructure).
+> Paths like `llm/infra/...` or `llm/scripts/...` in these documents are
+> relative to that repository.
+
 ## 01 — Architecture
 
 | Document | What you get |
@@ -61,5 +67,5 @@ incident.
 ## Cross-references
 
 - Compliance artifacts (machine-readable): [`security/`](../security/)
-- Runbook-adjacent scripts: [`scripts/`](../scripts/)
+- Runbook-adjacent scripts: [`llm/scripts/` in jol-infrastructure](https://github.com/journeyoflife-org/jol-infrastructure/tree/main/llm/scripts)
 - Model supply chain data: [`models/`](../models/)

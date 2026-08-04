@@ -12,14 +12,14 @@ Alerts: Netdata warns at 7 days to expiry, critical at 3 days.
 | CRL | `/etc/caddy/tls/ca.crl` | Updated on any client revocation |
 | Client certs | Held by consuming teams | 1 year |
 
-Generation procedure (internal CA): `scripts/security/generate-mtls-certs.sh`
-and [`../../../deploy/caddy/tls/README.md`](../../../deploy/caddy/tls/README.md).
+Generation procedure (internal CA): `llm/scripts/security/generate-mtls-certs.sh`
+and [`llm/deploy/caddy/tls/README.md` in jol-infrastructure](https://github.com/journeyoflife-org/jol-infrastructure/blob/main/llm/deploy/caddy/tls/README.md).
 
 ## Server leaf rotation (zero downtime)
 
 ```bash
 # 1. Issue new leaf from the internal CA (on the CA host / kiosk)
-sudo scripts/security/generate-mtls-certs.sh --leaf llm-prod-lt01
+sudo llm/scripts/security/generate-mtls-certs.sh --leaf llm-prod-lt01
 
 # 2. Stage new material (keep old!)
 sudo install -m 0600 llm-prod-lt01.key /etc/caddy/tls/llm-prod-lt01.key.new
@@ -44,7 +44,7 @@ Rollback: restore previous pair from `/opt/jol/state/tls-backup/`, reload.
 
 1. Revoke at CA: `openssl ca -revoke <cert>` → regenerate CRL.
 2. Distribute CRL to `/etc/caddy/tls/ca.crl`, `systemctl reload caddy`.
-3. Revoke the client's API key too: `scripts/security/rotate-api-keys.sh
+3. Revoke the client's API key too: `llm/scripts/security/rotate-api-keys.sh
    --revoke <client-id>`.
 4. SLA: revocation effective ≤ 4 h from request (access-control-matrix).
 
