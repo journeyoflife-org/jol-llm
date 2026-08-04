@@ -1,0 +1,89 @@
+{
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.5",
+  "serialNumber": "urn:uuid:9f8a7c6d-5e4f-4a3b-8c2d-1e0f9a8b7c6d",
+  "version": 3,
+  "metadata": {
+    "timestamp": "2026-08-04T00:00:00Z",
+    "component": {
+      "type": "application",
+      "name": "jol-llm-platform",
+      "version": "1.0.0",
+      "description": "Self-hosted LLM serving platform (llm-prod-lt01)",
+      "supplier": { "name": "JOL Platform Engineering" }
+    },
+    "notes": "Regenerate on every Ollama/Caddy/Netdata version change (scripts/maintenance/update-ollama.sh enforces). Hashes are upstream-published values recorded at air-gap import."
+  },
+  "components": [
+    {
+      "type": "application",
+      "name": "ollama",
+      "version": "0.6.6",
+      "supplier": { "name": "Ollama" },
+      "licenses": [{ "license": { "id": "MIT" } }],
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "REPLACE_WITH_PINNED_SHA256_OF_STAGED_BINARY"
+        }
+      ],
+      "description": "Inference runtime; binary pinned in infra/group_vars/all/vars.yml",
+      "properties": [
+        { "name": "jol:install-path", "value": "/usr/local/bin/ollama" },
+        { "name": "jol:update-procedure", "value": "scripts/maintenance/update-ollama.sh" }
+      ]
+    },
+    {
+      "type": "application",
+      "name": "caddy",
+      "version": "2.8.4",
+      "supplier": { "name": "Caddy / Ubuntu noble repos" },
+      "licenses": [{ "license": { "id": "Apache-2.0" } }],
+      "description": "TLS termination + reverse proxy (mTLS)",
+      "properties": [
+        { "name": "jol:install-path", "value": "/usr/bin/caddy" }
+      ]
+    },
+    {
+      "type": "application",
+      "name": "netdata",
+      "version": "1.44.x",
+      "supplier": { "name": "Netdata / Ubuntu noble repos" },
+      "licenses": [{ "license": { "id": "GPL-3.0-only" } }],
+      "description": "Monitoring agent",
+      "properties": [
+        { "name": "jol:install-path", "value": "/usr/sbin/netdata" }
+      ]
+    },
+    {
+      "type": "application",
+      "name": "podman",
+      "version": "4.9.x",
+      "supplier": { "name": "Ubuntu noble repos" },
+      "licenses": [{ "license": { "id": "Apache-2.0" } }],
+      "description": "Rootless containers for sidecars (staging/dev use)"
+    },
+    {
+      "type": "machine-learning-model",
+      "name": "qwen3-32b-q8_0",
+      "version": "gguf-q8_0",
+      "supplier": { "name": "Qwen" },
+      "description": "Primary model; manifest models/manifests/qwen3-32b-q8_0.json",
+      "properties": [
+        { "name": "jol:license", "value": "Qwen-License" },
+        { "name": "jol:manifest", "value": "models/manifests/qwen3-32b-q8_0.json" }
+      ]
+    },
+    {
+      "type": "machine-learning-model",
+      "name": "deepseek-r1-distill-qwen-32b",
+      "version": "gguf-q4_k_m",
+      "supplier": { "name": "DeepSeek-AI" },
+      "description": "Secondary reasoning model",
+      "properties": [
+        { "name": "jol:license", "value": "MIT (+Qwen lineage)" },
+        { "name": "jol:manifest", "value": "models/manifests/deepseek-r1-distill-qwen-32b.json" }
+      ]
+    }
+  ]
+}

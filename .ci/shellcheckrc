@@ -1,0 +1,19 @@
+# ShellCheck configuration for jol-llm.
+# Docs: https://www.shellcheck.net/wiki/RC-file
+# NOTE: --rcfile / auto-loading needs shellcheck >= 0.9. CI and the
+# pre-commit hook therefore pass these same settings as explicit flags
+# (-s bash -S style -e SC1090,SC1091); keep both in sync.
+
+# All operational scripts target bash on Ubuntu 24.04.
+shell=bash
+
+# Severity floor: style findings are actionable in production scripts.
+severity=style
+
+# SC1090/SC1091 — can't follow non-constant source paths; scripts document
+# their sourcing contract in comments instead.
+disable=SC1090,SC1091
+
+# Extra hardening checks that are off by default:
+# SC2250 prefer ${var} quoting clarity, SC2248 quote variables in arrays.
+enable=add-default-case,avoid-nullary-conditions

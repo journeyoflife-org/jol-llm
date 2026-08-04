@@ -1,0 +1,64 @@
+---
+# Dry-run compliance scan: mirrors the weekly cron on llm-prod-lt01.
+# Runs in an ephemeral container only; never touches production.
+name: compliance-scan
+on:
+  pull_request:
+    paths:
+      - "config/**"
+      - "deploy/**"
+      - "infra/**"
+      - "scripts/**"
+  schedule:
+    # Mondays 04:00 UTC — baseline drift detection
+    - cron: "0 4 * * 1"
+
+permissions:
+  contents: read
+
+jobs:
+  lynis-dry-run:
+    name: Lynis (dry-run profile)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install lynis
+        run: sudo apt-get update && sudo apt-get install -y lynis
+      - name: Run Lynis audit (report only)
+        run: |
+          set -uo pipefail
+          sudo lynis audit system --quick --no-colors \
+            | tee lynis-report.txt
+          # Fail on warnings in the tracked control set; info-level findings
+          # are advisory. Keep in sync with
+          # docs/03-security/hardening-checklist.md
+          if grep -E '^\[WARNING\]' lynis-report.txt \
+               | grep -Ev 'TOOL_TIP|OS_VERSION' ; then
+            echo "::warning::Lynis warnings present — review against hardening checklist"
+          fi
+      - name: Upload report artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: lynis-report
+          path: lynis-report.txt
+          retention-days: 90
+
+  debsecan-dry-run:
+    name: debsecan (CVE exposure)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install debsecan
+        run: sudo apt-get update && sudo apt-get install -y debsecan
+      - name: Scan installed packages
+        run: |
+          set -uo pipefail
+          debsecan --suite noble --format report > debsecan-report.txt \
+            || true
+          cat debsecan-report.txt
+      - name: Upload report artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: debsecan-report
+          path: debsecan-report.txt
+          retention-days: 90

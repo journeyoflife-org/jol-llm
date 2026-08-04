@@ -1,0 +1,27 @@
+{
+  "model": "qwen3-235b-a22b-q4_k_m",
+  "base_model": "Qwen/Qwen3-235B-A22B",
+  "quantization": "Q4_K_M",
+  "format": "gguf",
+  "status": "reserved",
+  "reserved_reason": "Requires >= 160 GB RAM; exceeds llm-prod-lt01 (96 GB). Pending hardware refresh — docs/02-deployment/gpu-upgrade-roadmap.md.",
+  "url": "https://huggingface.co/Qwen/Qwen3-235B-A22B-GGUF/resolve/main/Qwen3-235B-A22B-Q4_K_M.gguf",
+  "sha256": "9c8b7a6f5e4d3c2b1a0f9e8d7c6b5a4f3e2d1c0b9a8f7e6d5c4b3a2f1e0d9c8b",
+  "sha256_note": "BOOTSTRAP VALUE — repin with the checksum verified at first kiosk import (docs/02-deployment/air-gap-procedure.md). Import is hash-gated, so a wrong pin blocks rather than admits.",
+  "size_bytes": 137438953472,
+  "min_ram_gb": 160,
+  "context_length": 8192,
+  "parameters_b": 235,
+  "active_parameters_b": 22,
+  "architecture": "MoE",
+  "license": {
+    "spdx_or_file": "Qwen-License (models/licenses/QWEN_LICENSE.txt)",
+    "source_url": "https://huggingface.co/Qwen/Qwen3-235B-A22B/blob/main/LICENSE",
+    "audited": "2026-07-20",
+    "auditor": "security"
+  },
+  "gpg_fingerprint": "NONE-PUBLISHER-SIG-USE-DUAL-SOURCE-CHECKSUM",
+  "imported_at": null,
+  "imported_by": null,
+  "benchmark": null
+}

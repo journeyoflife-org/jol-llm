@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+# commit-msg — enforce Conventional Commits for jol-llm.
+# Convention (CONTRIBUTING.md §Branching and commit conventions):
+#   <type>(<scope>): <short imperative summary>
+#   types: feat fix docs sec ops refactor test chore ci
+# Merge commits, reverts, and fixups are exempt.
+set -euo pipefail
+
+MSG_FILE="$1"
+SUBJECT=$(head -n1 "${MSG_FILE}")
+
+# Exemptions: merges, reverts, autosquash fixups/squashes.
+case "${SUBJECT}" in
+  "Merge "*|"Revert "*|"fixup!"*|"squash!"*) exit 0 ;;
+esac
+
+TYPES="feat|fix|docs|sec|ops|refactor|test|chore|ci"
+PATTERN="^(${TYPES})(\([a-z0-9/-]+\))?!?: .{1,72}$"
+
+if ! [[ "${SUBJECT}" =~ ${PATTERN} ]]; then
+  cat >&2 <<EOF
+[commit-msg] REJECTED — subject line does not follow Conventional Commits.
+
+  got:      ${SUBJECT}
+  expected: <type>(<scope>): <imperative summary, ≤72 chars>
+  types:    feat fix docs sec ops refactor test chore ci
+  example:  sec(caddy): rotate mTLS CA key after expiry incident
+
+See CONTRIBUTING.md — Branching and commit conventions.
+EOF
+  exit 1
+fi
+
+# Imperative mood heuristic: reject common non-imperative openings.
+DESC=${SUBJECT#*: }
+case "${DESC}" in
+  "added "*|"fixed "*|"updated "*|"adds "*|"changes "*)
+    printf '[commit-msg] REJECTED — use imperative mood ("add", not "added"/"adds")\n' >&2
+    exit 1
+    ;;
+esac
+
+exit 0

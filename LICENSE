@@ -1,0 +1,44 @@
+JOL PROPRIETARY LICENSE
+
+Copyright (c) 2026 JOL. All rights reserved.
+
+This repository ("jol-llm"), including all documentation, configuration,
+scripts, infrastructure-as-code, and compliance artifacts contained herein,
+is the confidential and proprietary property of JOL.
+
+1. GRANT
+   Authorized personnel of JOL, and contractors bound by a written agreement
+   with JOL, may use, modify, and redistribute this repository solely for the
+   purpose of operating, auditing, and maintaining JOL's internal
+   infrastructure.
+
+2. RESTRICTIONS
+   a. No external redistribution, publication, sublicensing, or hosting of
+      this repository or derivatives outside JOL-controlled systems is
+      permitted without prior written approval from JOL management.
+   b. This repository documents security controls, network topology, and
+      hardening configuration. Disclosure to third parties requires approval
+      per the classification rules in security/policies/.
+   c. Trademarks of JOL may not be used to endorse derived works.
+
+3. THIRD-PARTY COMPONENTS
+   This repository references but does not contain third-party software
+   (Ollama, Caddy, Netdata, Podman, Ansible, and others) and third-party
+   model weights (Qwen, DeepSeek). Those components are governed exclusively
+   by their own licenses; see docs/05-models/license-compliance.md and
+   security/sbom/ollama-sbom.json.
+
+4. NO WARRANTY
+   THE REPOSITORY IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+   OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+   MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+
+5. TERMINATION
+   Any breach of this license terminates the grant in Section 1 immediately
+   and requires deletion of all copies.
+
+6. COMPLIANCE PRECEDENCE
+   Where internal policies in security/policies/ impose stricter obligations
+   than this license, the stricter obligations prevail.
+
+Contact: security@jol.internal (see SECURITY.md)

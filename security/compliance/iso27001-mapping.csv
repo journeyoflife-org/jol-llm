@@ -1,0 +1,22 @@
+control_id,control_title,implementation,evidence_artifact,owner,status,notes
+A.5.1,Policies for information security,"security/policies/: retention, AUP, IR",security/policies/,security,implemented,reviewed 2026-08-04
+A.5.15,Access control,"mTLS + per-client API keys; access-control-matrix",docs/03-security/access-control-matrix.md,security,implemented,quarterly recertification
+A.5.17,Authentication information management,"Salted-hash key store; 90-day rotation; vault secrets",scripts/security/rotate-api-keys.sh,platform-eng,implemented,
+A.5.19,Information security in supplier relationships,"Air-gap kiosk import with SHA256+GPG gates",docs/02-deployment/air-gap-procedure.md,security,implemented,
+A.5.23,Information security for use of cloud services,Not applicable — fully on-premises,n/a,security,not-applicable,SoA note
+A.5.24,Information security incident management planning,"IR policy + runbook",security/policies/incident-response-policy.md,security,implemented,
+A.5.25,Assessment of security events,"audit-review.sh weekly; Netdata alerts",scripts/security/audit-review.sh,security,implemented,
+A.5.26,Response to incidents,"IR runbook + drill log",docs/04-operations/runbooks/incident-response.md,security,implemented,drill evidence in vault
+A.5.33,Protection of records,"90-day metadata audit; WORM-style archive",config/logrotate/jol-audit,platform-eng,implemented,
+A.5.34,Privacy and protection of PII,"0-day prompt retention; automated log-hygiene test",tests/integration/test_compliance_logging.sh,security,implemented,
+A.7.13,Equipment maintenance,"Pre-flight + SMART monitoring",scripts/install/01-pre-flight.sh,platform-eng,implemented,
+A.8.2,Privileged access rights,"sudoers allowlist; break-glass policy",infra/roles/security/templates/sudoers.j2,security,implemented,
+A.8.5,Secure authentication,"SSH CA; fail2ban; mTLS",infra/playbooks/01-os-hardening.yml,platform-eng,implemented,
+A.8.7,Protection against malware,"Minimal install; air-gap; no external repos",docs/03-security/hardening-checklist.md,security,accepted-deviation,"no AV agent; compensated by isolation"
+A.8.8,Management of technical vulnerabilities,"Weekly Lynis + debsecan; patch window",.github/workflows/compliance-scan.yml,platform-eng,implemented,
+A.8.9,Configuration management,"Ansible IaC; /etc git; unit snapshots",infra/,platform-eng,implemented,
+A.8.15,Logging,"Metadata-only; tamper-resistant auditd rules",config/auditd/ollama.rules,security,implemented,
+A.8.16,Monitoring activities,"Netdata + exporter + alert thresholds",monitoring/netdata/health.d/ollama.conf,platform-eng,implemented,
+A.8.22,"Segregation of networks","VLAN 40 isolation; default-deny egress; tested",tests/security/test_egress_blocking.sh,security,implemented,
+A.8.25,Secure development life cycle,"CI gates; conventional commits; CODEOWNERS 2-eyes",.github/workflows/,platform-eng,implemented,
+A.8.28,Secure coding,"ShellCheck-enforced; secret scanning pre-commit",.git-hooks/pre-commit,platform-eng,implemented,

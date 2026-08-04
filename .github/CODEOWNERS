@@ -1,0 +1,24 @@
+# CODEOWNERS — enforces 2-eyes (or more) review on security-critical paths.
+# Branch protection requires: 2 approving reviews for these paths.
+# Syntax: <pattern> <owner(s)>  — last matching pattern wins.
+
+# Default owners for the whole repo
+*                          @jol/platform-eng
+
+# Security & compliance artifacts — security team + platform lead
+/security/                 @jol/security @jol/platform-lead
+SECURITY.md                @jol/security @jol/platform-lead
+docs/03-security/          @jol/security @jol/platform-lead
+
+# Infrastructure as code & deployment surface
+/infra/                    @jol/platform-eng @jol/platform-lead
+/deploy/                   @jol/platform-eng @jol/platform-lead
+/config/                   @jol/platform-eng @jol/platform-lead
+scripts/security/          @jol/security @jol/platform-eng
+scripts/install/           @jol/platform-eng @jol/platform-lead
+
+# Model supply chain — any manifest hash change needs security eyes
+models/manifests/          @jol/platform-eng @jol/security
+
+# CI itself
+.github/workflows/         @jol/platform-eng @jol/platform-lead

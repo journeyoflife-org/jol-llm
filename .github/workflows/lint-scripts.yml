@@ -1,0 +1,57 @@
+---
+name: lint-scripts
+on:
+  pull_request:
+    paths:
+      - "scripts/**"
+      - "tests/**"
+      - ".git-hooks/**"
+      - "infra/**"
+      - "**/*.yml"
+      - "**/*.yaml"
+      - ".github/workflows/lint-scripts.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  shellcheck:
+    name: ShellCheck
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install shellcheck
+        run: sudo apt-get update && sudo apt-get install -y shellcheck
+      - name: Run shellcheck on all shell scripts
+        run: |
+          set -euo pipefail
+          mapfile -t scripts < <(find scripts tests .git-hooks -type f \
+            \( -name '*.sh' -o -name 'pre-commit' -o -name 'commit-msg' \))
+          printf '%s\n' "${scripts[@]}"
+          # Flags mirror .ci/shellcheckrc (which needs shellcheck >= 0.9;
+          # apt on ubuntu-24.04 ships 0.8 without --rcfile support).
+          shellcheck -s bash -S style -e SC1090,SC1091 "${scripts[@]}"
+
+  yamllint:
+    name: yamllint
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install yamllint
+        run: pipx install yamllint
+      - name: Run yamllint
+        run: yamllint -c .ci/yamllint-config .
+
+  ansible-syntax:
+    name: Ansible syntax check
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install ansible-core
+        run: pipx install ansible-core
+      - name: Syntax check site playbook
+        working-directory: infra
+        run: |
+          ANSIBLE_CONFIG=ansible.cfg \
+            ansible-playbook --syntax-check -i inventory/production.ini \
+            playbooks/site.yml

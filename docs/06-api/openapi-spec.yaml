@@ -1,0 +1,134 @@
+openapi: 3.1.0
+info:
+  title: JOL LLM API (OpenAI-compatible subset)
+  version: 1.0.0
+  description: |
+    Internal LLM inference API served by jol-llm on llm-prod-lt01.
+    Authentication: mTLS client certificate (transport) AND Bearer API key.
+    Prompt/completion content is never persisted (0-day retention policy).
+  contact:
+    name: JOL Platform Engineering
+servers:
+  - url: https://llm.jol.internal:8443
+    description: Production (VLAN 40 only)
+  - url: https://llm-stg.jol.internal:8443
+    description: Staging
+
+security:
+  - mTLS: []
+    bearerApiKey: []
+
+paths:
+  /v1/chat/completions:
+    post:
+      operationId: createChatCompletion
+      summary: Generate a chat completion
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChatCompletionRequest"
+      responses:
+        "200":
+          description: Completion generated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChatCompletionResponse"
+        "401":
+          description: Missing/invalid API key or client certificate
+        "429":
+          description: Rate limit exceeded; Retry-After header present
+        "503":
+          description: Model not loaded or service draining
+  /healthz:
+    get:
+      operationId: healthCheck
+      summary: Liveness/readiness probe (no auth beyond mTLS)
+      responses:
+        "200":
+          description: OK
+        "503":
+          description: Degraded
+
+components:
+  securitySchemes:
+    mTLS:
+      type: mutualTLS
+    bearerApiKey:
+      type: http
+      scheme: bearer
+      description: Per-client key issued via rotate-api-keys.sh (prefix jol_)
+
+  schemas:
+    ChatCompletionRequest:
+      type: object
+      required: [model, messages]
+      properties:
+        model:
+          type: string
+          description: Registry name from docs/05-models/model-registry.md
+          examples: ["qwen3-32b-q8_0"]
+        messages:
+          type: array
+          minItems: 1
+          items:
+            type: object
+            required: [role, content]
+            properties:
+              role:
+                type: string
+                enum: [system, user, assistant]
+              content:
+                type: string
+                maxLength: 32000
+        stream:
+          type: boolean
+          default: false
+        temperature:
+          type: number
+          minimum: 0
+          maximum: 2
+          default: 0.7
+        max_tokens:
+          type: integer
+          minimum: 1
+          maximum: 4096
+          description: Server caps at 4096 regardless of model context
+        stop:
+          type: array
+          items: { type: string }
+          maxItems: 4
+      additionalProperties: false
+
+    ChatCompletionResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Correlation ID (also present in audit metadata)
+        created:
+          type: integer
+        model:
+          type: string
+        choices:
+          type: array
+          items:
+            type: object
+            properties:
+              index: { type: integer }
+              message:
+                type: object
+                properties:
+                  role: { type: string }
+                  content: { type: string }
+              finish_reason:
+                type: string
+                enum: [stop, length]
+        usage:
+          type: object
+          properties:
+            prompt_tokens: { type: integer }
+            completion_tokens: { type: integer }
+            total_tokens: { type: integer }

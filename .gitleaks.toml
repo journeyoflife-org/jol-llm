@@ -1,0 +1,24 @@
+# gitleaks configuration for jol-llm.
+# Extends the default rule set; the allowlist below covers ONLY documented
+# non-secret placeholders and canned test credentials. Real secrets must
+# never match these patterns — if you find yourself extending this file,
+# stop and rotate the credential instead.
+title = "jol-llm gitleaks config"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Documented placeholders and canned test credentials"
+paths = [
+  # Bootstrap template whose values are structurally placeholders.
+  '''infra/group_vars/all/vault\.yml\.example''',
+]
+regexes = [
+  # Vault template placeholders (see vault.yml.example header).
+  '''REPLACE_WITH_32_HEX_BYTES''',
+  '''REPLACE_ME''',
+  # Canned invalid key used by tests/integration/test_api_auth.sh —
+  # deliberately non-hex and unguessable as a real key shape.
+  '''jol_invalid_this-is-not-a-real-key''',
+]

@@ -1,0 +1,4 @@
+date,host,model,quant,threads,prompt_tok_s,gen_tok_s,notes
+2026-08-04,llm-prod-lt01,qwen3-32b-q8_0,Q8_0,32,140.0,1.4,baseline v1.0.0; governor=performance; 23C ambient
+2026-08-04,llm-prod-lt01,qwen3-32b-q4_k_m,Q4_K_M,32,250.0,2.5,staging quantization comparison
+2026-08-04,llm-prod-lt01,deepseek-r1-distill-qwen-32b,Q4_K_M,32,255.0,2.6,staging verification run

@@ -1,0 +1,80 @@
+#!/usr/bin/env bash
+# pre-commit — local quality gate for jol-llm.
+# Enable with: git config core.hooksPath .git-hooks
+# Checks, on staged files only:
+#   1. ShellCheck (with .ci/shellcheckrc)
+#   2. Secret scan: gitleaks if installed, plus built-in regex fallback
+#   3. Unencrypted ansible-vault rejection (infra/group_vars/**/vault.yml)
+#   4. Executable bit present on shell scripts
+# Bypass exists (git commit --no-verify) but its use must be recorded in
+# the PR description per CONTRIBUTING.md.
+set -uo pipefail
+
+STAGED=$(git diff --cached --name-only --diff-filter=ACMR)
+[[ -z "${STAGED}" ]] && exit 0
+
+FAIL=0
+err() { printf '[pre-commit] FAIL — %s\n' "$*" >&2; FAIL=1; }
+
+# --- 1. ShellCheck ----------------------------------------------------------
+mapfile -t sh_files < <(printf '%s\n' "${STAGED}" | grep -E '\.(sh|bash)$' || true)
+if (( ${#sh_files[@]} > 0 )); then
+  if command -v shellcheck >/dev/null 2>&1; then
+    # Flags mirror .ci/shellcheckrc; passed explicitly because --rcfile
+    # requires shellcheck >= 0.9 (Ubuntu 24.04 ships 0.8).
+    if ! shellcheck -s bash -S style -e SC1090,SC1091 "${sh_files[@]}"; then
+      err "shellcheck findings above"
+    fi
+  else
+    echo '[pre-commit] WARN — shellcheck not installed; skipping' >&2
+  fi
+fi
+
+# --- 2. Secret scan ---------------------------------------------------------
+if command -v gitleaks >/dev/null 2>&1; then
+  if ! gitleaks protect --staged --no-banner --redact --config .gitleaks.toml; then
+    err "gitleaks detected secrets in staged changes"
+  fi
+else
+  echo '[pre-commit] WARN — gitleaks not installed; using regex fallback' >&2
+fi
+
+# Regex fallback: obvious credential patterns in staged content.
+# shellcheck disable=SC2016  # regex literal; no expansion intended
+SECRET_RE='(PRIVATE KEY-----|jol_[a-z0-9_]+_[0-9a-f]{64}|ansible_vault\s*\$ANSIBLE_VAULT|password[[:space:]]*[:=][[:space:]]*[^[:space:]{]|BEGIN OPENSSH PRIVATE KEY)'
+while IFS= read -r f; do
+  [[ -f "${f}" ]] || continue
+  # Exclude the SECRET_RE definition line (self-match) and documented
+  # placeholder values (vault templates — see .gitleaks.toml allowlist).
+  if git diff --cached -U0 -- "${f}" | grep -EIn "^\+" \
+    | grep -v 'SECRET_RE=' \
+    | grep -vE 'REPLACE_WITH_|REPLACE_ME|CHANGE_ME|<[a-z ]+>' \
+    | grep -qE "${SECRET_RE}"; then
+    err "possible secret in ${f} (regex match) — review or rotate the credential"
+  fi
+done <<< "$(printf '%s\n' "${STAGED}")"
+
+# --- 3. Encrypted vaults only -----------------------------------------------
+while IFS= read -r f; do
+  if [[ "${f}" =~ vault\.yml$ ]]; then
+    # shellcheck disable=SC2016  # regex literal; no expansion intended
+    if ! head -1 "${f}" 2>/dev/null | grep -q '^\$ANSIBLE_VAULT;'; then
+      err "${f} is NOT an encrypted ansible-vault — refusing to commit plaintext secrets"
+    fi
+  fi
+done <<< "$(printf '%s\n' "${STAGED}")"
+
+# --- 4. Executable bit on scripts -------------------------------------------
+while IFS= read -r f; do
+  [[ -n "${f}" ]] || continue
+  mode=$(git ls-files --stage -- "${f}" | awk '{print $1}')
+  if [[ "${mode}" != "100755" ]]; then
+    err "${f} staged without the executable bit (git update-index --chmod=+x ${f})"
+  fi
+done < <(printf '%s\n' "${sh_files[@]+"${sh_files[@]}"}")
+
+if (( FAIL > 0 )); then
+  echo '[pre-commit] blocked — fix findings or bypass with justification' >&2
+  exit 1
+fi
+echo '[pre-commit] OK'

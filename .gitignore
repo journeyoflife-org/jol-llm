@@ -1,0 +1,40 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+
+# --- IDE ---
+.idea/
+.vscode/
+
+# --- Secrets: never commit keys, certs, keystores, or plaintext vaults ---
+*.key
+*.pem
+*.p12
+*.pfx
+keys.db
+keys.db-*
+*.salt
+vault.plaintext*
+# Ansible vault: the ENCRYPTED vault.yml ($ANSIBLE_VAULT header) is tracked;
+# plaintext vaults are rejected by .git-hooks/pre-commit. Bootstrap from
+# infra/group_vars/all/vault.yml.example — see its header for the flow.
+
+# --- TLS material (Caddy internal CA) ---
+deploy/caddy/tls/*
+!deploy/caddy/tls/.gitignore
+!deploy/caddy/tls/README.md
+
+# --- Runtime / operational artifacts (live on the host, not in git) ---
+*.log
+*.pid
+*.sock
+*.tmp
+.provenance/
+models/*.gguf
+
+# --- OS ---
+.DS_Store
+Thumbs.db

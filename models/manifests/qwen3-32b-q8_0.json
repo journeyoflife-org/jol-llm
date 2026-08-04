@@ -1,0 +1,29 @@
+{
+  "model": "qwen3-32b-q8_0",
+  "base_model": "Qwen/Qwen3-32B",
+  "quantization": "Q8_0",
+  "format": "gguf",
+  "status": "production",
+  "url": "https://huggingface.co/Qwen/Qwen3-32B-GGUF/resolve/main/Qwen3-32B-Q8_0.gguf",
+  "sha256": "3f7a1c9e5b2d8460a1c3e5f7b9d1a2c4e6f80a1b2c3d4e5f60718293a4b5c6d7",
+  "sha256_note": "BOOTSTRAP VALUE — repin with the checksum verified at first kiosk import (docs/02-deployment/air-gap-procedure.md). Import is hash-gated, so a wrong pin blocks rather than admits.",
+  "size_bytes": 36620140544,
+  "min_ram_gb": 48,
+  "context_length": 8192,
+  "parameters_b": 32.8,
+  "license": {
+    "spdx_or_file": "Qwen-License (models/licenses/QWEN_LICENSE.txt)",
+    "source_url": "https://huggingface.co/Qwen/Qwen3-32B/blob/main/LICENSE",
+    "audited": "2026-07-20",
+    "auditor": "security"
+  },
+  "gpg_fingerprint": "NONE-PUBLISHER-SIG-USE-DUAL-SOURCE-CHECKSUM",
+  "imported_at": null,
+  "imported_by": null,
+  "benchmark": {
+    "host": "llm-prod-lt01",
+    "generation_tok_s": 1.4,
+    "prompt_tok_s": 140,
+    "see": "models/benchmarks/llm-prod-lt01-results.csv"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "$comment": "markdownlint config for jol-llm (markdownlint-cli). Docs and security policies use tables and long normative prose; relax line length, keep structural rules strict.",
+  "default": true,
+  "MD013": {
+    "line_length": 100,
+    "heading_line_length": 100,
+    "code_block_line_length": 140,
+    "tables": false,
+    "code_blocks": false
+  },
+  "MD024": { "siblings_only": true },
+  "MD033": false,
+  "MD036": false,
+  "MD041": false,
+  "MD046": { "style": "fenced" },
+  "MD060": false
+}

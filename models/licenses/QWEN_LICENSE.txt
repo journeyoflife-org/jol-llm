@@ -1,0 +1,23 @@
+ARCHIVED LICENSE COPY — Qwen models
+===================================
+
+This file is the archived license reference for Qwen3 models admitted to the
+JOL registry (Qwen3-32B, Qwen3-235B-A22B). Per
+docs/05-models/license-compliance.md, the authoritative text is captured
+verbatim at model admission time; this placeholder is replaced with the
+verbatim upstream text during the first kiosk import of each model.
+
+Canonical source at admission:
+  https://huggingface.co/Qwen/Qwen3-32B/blob/main/LICENSE
+
+Summary recorded by the license audit (NOT a substitute for the full text):
+
+- Grant: free commercial and non-commercial use, subject to conditions.
+- Attribution: copyright notice and license must accompany redistributions.
+- Restriction: the models and derivatives may not be used to train
+  competing large language foundation models.
+- Acceptable-use clause applies (no unlawful or harmful use).
+- MAU threshold clause: not applicable at JOL's internal scale; re-verify
+  if the platform is ever exposed beyond internal users.
+
+Audit: 2026-07-20, security. See docs/05-models/license-compliance.md.

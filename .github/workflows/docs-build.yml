@@ -1,0 +1,43 @@
+---
+name: docs-build
+on:
+  pull_request:
+    paths:
+      - "docs/**"
+      - "security/**"
+      - "**/*.md"
+      - ".ci/markdownlint.json"
+      - ".github/workflows/docs-build.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  markdown-lint:
+    name: Markdown lint
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install markdownlint-cli
+        run: npm install -g markdownlint-cli
+      - name: Lint all Markdown
+        run: markdownlint --config .ci/markdownlint.json '**/*.md'
+
+  link-check:
+    name: Internal link check
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install lychee
+        run: |
+          sudo apt-get update && sudo apt-get install -y lychee
+      - name: Check internal links only (offline-safe)
+        run: |
+          lychee --offline --include-fragments \
+            --exclude-all-private \
+            --accept 200,403 \
+            'docs/**/*.md' '*.md' 'security/**/*.md' \
+            || (echo "::error::Broken internal links found" && exit 1)

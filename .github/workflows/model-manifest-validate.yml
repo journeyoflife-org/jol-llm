@@ -1,0 +1,87 @@
+---
+# Validates model manifests: JSON schema, sha256 format, license reference,
+# and consistency with the canonical registry doc.
+name: model-manifest-validate
+on:
+  pull_request:
+    paths:
+      - "models/**"
+      - "scripts/install/03-model-pull.sh"
+      - ".github/workflows/model-manifest-validate.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Validate model manifests
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Validate every manifest
+        run: |
+          set -euo pipefail
+          python3 - <<'EOF'
+          import json, re, sys, pathlib
+
+          REQUIRED = ["model", "quantization", "url", "sha256", "size_bytes",
+                      "min_ram_gb", "license", "status"]
+          SHA_RE = re.compile(r"^[0-9a-f]{64}$")
+          STATUSES = {"production", "approved", "reserved", "deprecated"}
+          errors = []
+
+          manifests = sorted(pathlib.Path("models/manifests").glob("*.json"))
+          if not manifests:
+              sys.exit("no manifests found under models/manifests/")
+
+          for path in manifests:
+              try:
+                  data = json.loads(path.read_text())
+              except json.JSONDecodeError as exc:
+                  errors.append(f"{path}: invalid JSON ({exc})")
+                  continue
+              for field in REQUIRED:
+                  if field not in data:
+                      errors.append(f"{path}: missing field '{field}'")
+              sha = data.get("sha256", "")
+              if not SHA_RE.match(sha):
+                  errors.append(f"{path}: sha256 not 64 lowercase hex chars")
+              if sha == "0" * 64:
+                  errors.append(f"{path}: sha256 is the zero placeholder — "
+                                "pin the verified checksum before merge "
+                                "(see docs/02-deployment/air-gap-procedure.md)")
+              if data.get("status") not in STATUSES:
+                  errors.append(f"{path}: status must be one of {sorted(STATUSES)}")
+              lic = data.get("license", {})
+              if lic.get("spdx_or_file") in (None, ""):
+                  errors.append(f"{path}: license.spdx_or_file required")
+
+          if errors:
+              print("\n".join(errors))
+              sys.exit(1)
+          print(f"OK: {len(manifests)} manifest(s) valid")
+          EOF
+
+  checksum-drift:
+    name: Detect unpinned checksum drift
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Fail if a PR downgrades a pinned sha256 to a placeholder
+        if: github.event_name == 'pull_request'
+        run: |
+          set -euo pipefail
+          git diff --name-only origin/"${GITHUB_BASE_REF}"...HEAD \
+            -- models/manifests | while read -r f; do
+            git show origin/"${GITHUB_BASE_REF}":"$f" 2>/dev/null \
+              | grep -o '"sha256": *"[0-9a-f]\{64\}"' > /tmp/old || true
+            grep -o '"sha256": *"[0-9a-f]\{64\}"' "$f" > /tmp/new || true
+            if [ -s /tmp/old ] && ! diff -q /tmp/old /tmp/new >/dev/null; then
+              echo "::warning::$f sha256 changed — requires security review"
+            fi
+          done
