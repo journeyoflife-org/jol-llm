@@ -37,7 +37,7 @@ jobs:
             echo "::warning::Lynis warnings present — review against hardening checklist"
           fi
       - name: Upload report artifact
-        uses: actions/upload-artifact@v4
+uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
         with:
           name: lynis-report
           path: lynis-report.txt
@@ -57,7 +57,7 @@ jobs:
             || true
           cat debsecan-report.txt
       - name: Upload report artifact
-        uses: actions/upload-artifact@v4
+uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
         with:
           name: debsecan-report
           path: debsecan-report.txt
